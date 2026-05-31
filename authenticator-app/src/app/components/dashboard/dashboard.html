@@ -1,0 +1,72 @@
+<div class="parent">
+  <div class="dashboard-container">
+    <!-- Success Badge Section -->
+    <div class="success-badge-wrapper">
+      <div class="success-icon-bg">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+      <h1>Successfully Logged In!</h1>
+      <p class="subtitle">Welcome to your secure space</p>
+    </div>
+
+    <!-- User Profile & Session Info Card -->
+    <div class="info-card">
+      <div class="info-row">
+        <span class="info-label">Account</span>
+        <span class="info-value username-badge">
+          <i class="bx bx-user"></i> {{ username() }}
+        </span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Status</span>
+        <span class="info-value status-badge">
+          <span class="pulse-indicator"></span> Active Session
+        </span>
+      </div>
+    </div>
+
+    <!-- Security Credentials (JWT) Section -->
+    <div class="token-section">
+      <div class="token-header">
+        <h3><i class="bx bx-shield-quarter"></i> Authentication Token</h3>
+      </div>
+      
+      <div class="token-box">
+        @if (showToken()) {
+          <div class="token-text">{{ token() }}</div>
+        } @else {
+          <div class="token-text masked">••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••</div>
+        }
+      </div>
+
+      <div class="token-actions">
+        <button class="action-btn" (click)="toggleTokenVisibility()" title="Toggle visibility">
+          @if (showToken()) {
+            <i class="bx bx-hide"></i> Hide Token
+          } @else {
+            <i class="bx bx-show"></i> Show Token
+          }
+        </button>
+
+        <button class="action-btn copy-btn" [class.copied]="copySuccess()" (click)="copyToken()" title="Copy token to clipboard">
+          @if (copySuccess()) {
+            <i class="bx bx-check"></i> Copied!
+          } @else {
+            <i class="bx bx-copy"></i> Copy Token
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Action / Sign Out -->
+    <div class="action-footer">
+      <button class="btn btn-logout" (click)="logout()">
+        <i class="bx bx-log-out-circle"></i> Sign Out
+      </button>
+    </div>
+  </div>
+</div>

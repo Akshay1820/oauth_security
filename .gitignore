@@ -1,0 +1,98 @@
+# ==============================================================================
+# Git Ignore Configuration for OAuth Security Project (Angular + Spring Boot)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# System & OS Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ------------------------------------------------------------------------------
+# IDEs & Editor Configuration
+# ------------------------------------------------------------------------------
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+
+# ------------------------------------------------------------------------------
+# Spring Boot / Java / Maven (Spring Boot App)
+# ------------------------------------------------------------------------------
+# Build outputs
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Log files
+*.log
+logs/
+**/logs/
+
+# Maven wrapper and config
+.mvn/wrapper/
+!**/src/main/resources/
+!**/src/test/resources/
+
+# Crash logs
+hs_err_pid*
+replay_pid*
+
+# ------------------------------------------------------------------------------
+# Angular & Node.js (Authenticator App)
+# ------------------------------------------------------------------------------
+# Dependency directory
+node_modules/
+**/node_modules/
+
+# Angular cache & temporary files
+.angular/
+**/.angular/
+
+# Angular production/dev build output
+dist/
+**/dist/
+
+# Local env & secret configuration files
+.env
+.env.*
+!.env.example
+.git/
+
+# Server-Side Rendering (SSR) & Prerender builds
+.server/
+**/.server/
+
+# Test outputs & coverage reports
+/coverage
+**/coverage/
+*.lcov
+chrome-debug.log
+
+# TypeScript compilation cache
+*.tsbuildinfo
+
+# Prettier / Tailwind / Lint caches
+.eslintcache
+.stylelintcache
+.prettier-cache
