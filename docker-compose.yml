@@ -1,0 +1,13 @@
+services:
+  spring-app:
+    build: ./backend_security
+    container_name: spring-boot-container
+    ports:
+      - "8080:8080"
+  frontend-app:
+    build: ./authenticator-app
+    container_name: angular-container
+    ports:
+      - "4200:80"
+    depends_on:
+      - "spring-app"
