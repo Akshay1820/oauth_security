@@ -96,4 +96,9 @@ export class Login {
       }
     });
   }
+
+  loginWithGithub() {
+    this.integration.loginWithGithub();
+  }
+
 }

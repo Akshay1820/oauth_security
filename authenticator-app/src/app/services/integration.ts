@@ -43,4 +43,9 @@ export class Integration {
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
+
+  loginWithGithub() {
+    // This triggers Spring Boot's OAuth2 flow
+    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
+  }
 }

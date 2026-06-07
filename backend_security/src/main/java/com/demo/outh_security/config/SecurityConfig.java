@@ -1,5 +1,6 @@
 package com.demo.outh_security.config;
 
+import com.demo.outh_security.service.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +33,12 @@ public class SecurityConfig {
     @Value("${angular.frontend.url}")
     private String FRONTEND_URL;
 
+    private JwtService jwtService;
+
+    SecurityConfig(JwtService jwtService){
+        this.jwtService=jwtService;
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -42,10 +50,22 @@ public class SecurityConfig {
                     auth.requestMatchers("/login").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .oauth2Login(withDefaults())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(successHandler())   // redirect back to Angular
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .build();
     }
+
+    @Bean
+    public AuthenticationSuccessHandler successHandler() {
+        return (request, response, authentication) -> {
+            // Generate JWT and redirect to Angular
+            String jwt = jwtService.generateToken(authentication);
+            response.sendRedirect("http://localhost:4200/auth/callback?token=" + jwt);
+        };
+    }
+
 
     @Bean
     UserDetailsService userDetailsService() {
