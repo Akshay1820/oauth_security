@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -32,6 +30,9 @@ public class SecurityConfig {
 
     @Value("${angular.frontend.url}")
     private String FRONTEND_URL;
+
+    @Value("${angular.frontend.callback}")
+    private String FRONTEND_CALLBACK_URL;
 
     private JwtService jwtService;
 
@@ -62,7 +63,7 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             // Generate JWT and redirect to Angular
             String jwt = jwtService.generateToken(authentication);
-            response.sendRedirect("http://localhost:4200/auth/callback?token=" + jwt);
+            response.sendRedirect(FRONTEND_CALLBACK_URL + jwt);
         };
     }
 

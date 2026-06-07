@@ -46,6 +46,7 @@ export class Integration {
 
   loginWithGithub() {
     // This triggers Spring Boot's OAuth2 flow
-    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
+    console.log(this.API_URL)
+    window.location.href = `${this.API_URL}/oauth2/authorization/github`;
   }
 }
