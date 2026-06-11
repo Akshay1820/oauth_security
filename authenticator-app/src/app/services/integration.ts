@@ -13,6 +13,8 @@ export class Integration {
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
+    console.log("API ",this.API_URL);
+    
     return this.http
       .post(`${this.API_URL}/login`, { username, password })
       .pipe(

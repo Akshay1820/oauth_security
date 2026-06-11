@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -9,11 +10,22 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class Callback implements OnInit{
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit() {
+    // Only run in browser — localStorage is not available during SSR
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const token = this.route.snapshot.queryParamMap.get('token');
+    console.log('OAuth callback triggered, token present:', !!token);
+
     if (token) {
+      console.log("Token found, storing and redirecting to dashboard");
+      
       localStorage.setItem('token', token);
 
       // Decode JWT payload to extract username
@@ -29,9 +41,10 @@ export class Callback implements OnInit{
 
       this.router.navigate(['/dashboard']);
     } else {
+      console.log("Token not found in callback URL, redirecting to login");
+      
       this.router.navigate(['/login']);
     }
   }
 
 }
-

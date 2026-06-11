@@ -6,6 +6,11 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
+    // OAuth callback reads ?token= query param at runtime — must NOT be prerendered
+    path: 'auth/callback',
+    renderMode: RenderMode.Client
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender
   }
