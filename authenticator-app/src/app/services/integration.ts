@@ -51,4 +51,10 @@ export class Integration {
     console.log(this.API_URL)
     window.location.href = `${this.API_URL}/oauth2/authorization/github`;
   }
+
+  loginWithGoogle() {
+    // This triggers Spring Boot's Google OAuth2 flow
+    console.log(this.API_URL)
+    window.location.href = `${this.API_URL}/oauth2/authorization/google`;
+  }
 }

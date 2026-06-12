@@ -101,4 +101,8 @@ export class Login {
     this.integration.loginWithGithub();
   }
 
+  loginWithGoogle() {
+    this.integration.loginWithGoogle();
+  }
+
 }
