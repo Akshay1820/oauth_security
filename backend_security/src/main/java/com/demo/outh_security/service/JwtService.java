@@ -1,11 +1,14 @@
 package com.demo.outh_security.service;
 
+import com.demo.outh_security.dto.AppUserDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +17,11 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @Service
 public class JwtService {
+
+    private final AppUserService appUserService;
 
     @Value("${app.jwt.secret}")
     private String SECRET_KEY;
@@ -26,9 +32,23 @@ public class JwtService {
     // ✅ For OAuth2 (GitHub login)
     public String generateToken(Authentication authentication) {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
+        String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         String username = oAuth2User.getAttribute("login");
+        String name = oAuth2User.getAttribute("name");
         String email = oAuth2User.getAttribute("email");
         String avatarUrl = oAuth2User.getAttribute("avatar_url");
+
+
+        AppUserDto appUserDto=AppUserDto.builder()
+                .provider(provider)
+                .username(username)
+                .name(name)
+                .email(email)
+                .avatarUrl(avatarUrl)
+                .build();
+
+        appUserService.createAppUser(appUserDto);
 
         return Jwts.builder()
                 .setSubject(username)
