@@ -3,7 +3,6 @@ package com.demo.outh_security.service;
 import com.demo.outh_security.dto.AppUserDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 
 @RequiredArgsConstructor
@@ -42,7 +40,7 @@ public class JwtService {
 
         AppUserDto appUserDto=AppUserDto.builder()
                 .provider(provider)
-                .username(username)
+                .userName(username)
                 .name(name)
                 .email(email)
                 .avatarUrl(avatarUrl)

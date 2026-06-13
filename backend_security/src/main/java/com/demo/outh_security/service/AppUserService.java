@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -16,33 +18,51 @@ public class AppUserService {
 
     private final AppUserRepository appUserRepository;
 
-    public AppUser createAppUser(AppUserDto appUserDto) {
+    public void createAppUser(AppUserDto dto) {
 
-        checkUserExistOrNot(appUserDto);
-        AppUser appUser = new AppUser();
-        appUser.setRole(Role.USER);
-        appUser.setName(appUserDto.getName());
-        appUser.setUsername(appUserDto.getUsername());
-        appUser.setEmail(appUserDto.getEmail());
-        appUser.setAvatarUrl(appUserDto.getAvatarUrl());
-        appUser.setProvider(resolvedProvider(appUserDto.getProvider()));
-        appUser.setCreatedAt(LocalDateTime.now());
-        appUser.setLastLoginAt(LocalDateTime.now());
+        AppUser appUser = checkUserExistOrNot(dto)
+                .map(this::updateUser)
+                .orElseGet(() -> createNewAppUser(dto));
 
         appUserRepository.save(appUser);
+    }
+
+    private AppUser createNewAppUser(AppUserDto dto) {
+        LocalDateTime now = LocalDateTime.now();
+
+        AppUser appUser = new AppUser();
+        appUser.setRole(Role.USER);
+        appUser.setName(dto.getName());
+        appUser.setUsername(dto.getUserName());
+        appUser.setEmail(dto.getEmail());
+        appUser.setAvatarUrl(dto.getAvatarUrl());
+        appUser.setProvider(resolveProvider(dto.getProvider()));
+        appUser.setCreatedAt(now);
+        appUser.setLastLoginAt(now);
+
         return appUser;
     }
 
-    private Provider resolvedProvider(String provider) {
-        if(provider.toLowerCase().equals("github")){
-            return Provider.GITHUB;
-        } else if (provider.toLowerCase().equals("google")) {
-            return Provider.GOOGLE;
-        }
-        return null;
+    private AppUser updateUser(AppUser appUser) {
+        appUser.setLastLoginAt(LocalDateTime.now());
+        return appUser;
     }
 
-    private void checkUserExistOrNot(AppUserDto appUserDto) {
+    private Provider resolveProvider(String provider) {
+        if (provider == null) {
+            return null;
+        }
 
+        return switch (provider.toLowerCase()) {
+            case "github" -> Provider.GITHUB;
+            case "google" -> Provider.GOOGLE;
+            default -> null;
+        };
+    }
+
+    private Optional<AppUser> checkUserExistOrNot(AppUserDto dto) {
+        return Optional.ofNullable(dto.getEmail())
+                .flatMap(appUserRepository::findByEmail)
+                .or(() -> appUserRepository.findByUsername(dto.getUserName()));
     }
 }

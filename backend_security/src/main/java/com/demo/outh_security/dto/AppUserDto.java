@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 @Data
 public class AppUserDto {
-    private String username;
+    private String userName;
     private String name;
     private String email;
     private String avatarUrl;
