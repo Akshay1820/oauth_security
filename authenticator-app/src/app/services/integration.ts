@@ -10,11 +10,11 @@ export class Integration {
 
   API_URL = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Observable<any> {
-    console.log("API ",this.API_URL);
-    
+    console.log("API ", this.API_URL);
+
     return this.http
       .post(`${this.API_URL}/login`, { username, password })
       .pipe(
@@ -43,11 +43,23 @@ export class Integration {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      // Decode the payload part of the JWT
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiry = payload.exp; // Expiration time in Unix seconds
+
+      // Return true if current time is less than expiration time
+      return (Math.floor(Date.now() / 1000)) < expiry;
+    } catch (e) {
+      // If decoding fails, the token is invalid
+      return false;
+    }
   }
 
   loginWithGithub() {
-    // This triggers Spring Boot's OAuth2 flow
+    // This triggers Spring Boot's Github OAuth2 flow
     console.log(this.API_URL)
     window.location.href = `${this.API_URL}/oauth2/authorization/github`;
   }

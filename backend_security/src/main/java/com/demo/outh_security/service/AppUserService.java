@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,6 +26,10 @@ public class AppUserService {
                 .orElseGet(() -> createNewAppUser(dto));
 
         appUserRepository.save(appUser);
+    }
+
+    public List<AppUser> getAllUsers(){
+        return appUserRepository.findAll();
     }
 
     private AppUser createNewAppUser(AppUserDto dto) {
