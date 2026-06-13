@@ -10,19 +10,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -36,8 +31,12 @@ public class SecurityConfig {
 
     private JwtService jwtService;
 
-    SecurityConfig(JwtService jwtService){
-        this.jwtService=jwtService;
+    private JwtAuthenticationFilter jwtAuthFilter;
+
+
+    SecurityConfig(JwtService jwtService, JwtAuthenticationFilter jwtAuthFilter) {
+        this.jwtService = jwtService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
@@ -51,6 +50,14 @@ public class SecurityConfig {
                     auth.requestMatchers("/login").permitAll();
                     auth.anyRequest().authenticated();
                 })
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\":\"Invalid or missing JWT token\"}");
+                        })
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(successHandler())   // redirect back to Angular
                 )
@@ -67,21 +74,10 @@ public class SecurityConfig {
         };
     }
 
-
-    @Bean
-    UserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("admin")
-                .password("{noop}admin123")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200",FRONTEND_URL));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", FRONTEND_URL));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
