@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+@EnableMethodSecurity
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -33,10 +35,15 @@ public class SecurityConfig {
 
     private JwtAuthenticationFilter jwtAuthFilter;
 
+    private AuthEntryPoint authEntryPoint;
 
-    SecurityConfig(JwtService jwtService, JwtAuthenticationFilter jwtAuthFilter) {
+    private CustomAccessDeniedHandler accessDeniedHandler;
+
+    SecurityConfig(JwtService jwtService, JwtAuthenticationFilter jwtAuthFilter, AuthEntryPoint authEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) {
         this.jwtService = jwtService;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.authEntryPoint = authEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -50,13 +57,9 @@ public class SecurityConfig {
                     auth.requestMatchers("/login").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(401);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"message\":\"Invalid or missing JWT token\"}");
-                        })
-                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(successHandler())   // redirect back to Angular

@@ -4,9 +4,11 @@ import com.demo.outh_security.dto.AppUserDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,15 @@ public class JwtService {
     @Value("${app.jwt.expiration}")
     private long EXPIRATION_TIME;
 
+
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
     // ✅ For OAuth2 (GitHub login)
     public String generateToken(Authentication authentication) {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -38,7 +49,7 @@ public class JwtService {
         String avatarUrl = oAuth2User.getAttribute("avatar_url");
 
 
-        AppUserDto appUserDto=AppUserDto.builder()
+        AppUserDto appUserDto = AppUserDto.builder()
                 .provider(provider)
                 .userName(username)
                 .name(name)
@@ -66,6 +77,16 @@ public class JwtService {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        String userName = userDetails.getUsername();
+        return Jwts.builder()
+                .setSubject(userName)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSignKey())
                 .compact();
     }
 
