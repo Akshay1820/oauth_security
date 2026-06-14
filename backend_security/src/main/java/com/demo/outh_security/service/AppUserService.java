@@ -3,14 +3,13 @@ package com.demo.outh_security.service;
 import com.demo.outh_security.dto.AppUserDto;
 import com.demo.outh_security.model.AppUser;
 import com.demo.outh_security.model.Provider;
-import com.demo.outh_security.model.Role;
+import com.demo.outh_security.model.ACCOUNT_TYPE;
 import com.demo.outh_security.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class AppUserService {
         LocalDateTime now = LocalDateTime.now();
 
         AppUser appUser = new AppUser();
-        appUser.setRole(Role.USER);
+        appUser.setAccountType(ACCOUNT_TYPE.ROLE_USER);
         appUser.setName(dto.getName());
         appUser.setUsername(dto.getUserName());
         appUser.setEmail(dto.getEmail());

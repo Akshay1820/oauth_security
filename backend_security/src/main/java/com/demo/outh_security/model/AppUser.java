@@ -28,7 +28,7 @@ public class AppUser {
     private Provider provider;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private ACCOUNT_TYPE accountType;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 }

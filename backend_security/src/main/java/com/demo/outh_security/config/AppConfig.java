@@ -14,7 +14,7 @@ public class AppConfig {
     UserDetailsService userDetailsService() {
         UserDetails user = User.withUsername("admin")
                 .password("{noop}admin123")
-                .roles("USER")
+                .roles("ADMIN")
                 .build();
 
         return new InMemoryUserDetailsManager(user);
