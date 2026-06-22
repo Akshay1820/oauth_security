@@ -20,6 +20,7 @@ public class AppUser {
 
     private String email;
     private String username;
+    private String password;
     private String name;
     private String avatarUrl;
 
