@@ -1,0 +1,209 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <i class="bx bx-shield-quarter"></i>
+      </div>
+      <h2>Admin Panel</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <i class="bx bx-grid-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" (click)="goToDashboard()">
+        <i class="bx bx-home"></i>
+        <span>User Dashboard</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar">
+          <i class="bx bx-user"></i>
+        </div>
+        <div class="admin-details">
+          <span class="admin-name">{{ username() }}</span>
+          <span class="admin-role">Administrator</span>
+        </div>
+      </div>
+      <button class="btn-sidebar-logout" (click)="logout()">
+        <i class="bx bx-log-out-circle"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="content-header">
+      <div>
+        <h1>Dashboard Overview</h1>
+        <p class="header-subtitle">Manage users and monitor system activity</p>
+      </div>
+      <button class="btn-refresh" (click)="loadDashboardData()">
+        <i class="bx bx-refresh" [class.spin]="loading()"></i>
+        Refresh
+      </button>
+    </header>
+
+    <!-- Stats Cards -->
+    @if (stats()) {
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-icon-wrapper">
+            <i class="bx bx-group"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats()!.totalUsers }}</span>
+            <span class="stat-label">Total Users</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-admin">
+          <div class="stat-icon-wrapper">
+            <i class="bx bx-shield"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats()!.adminCount }}</span>
+            <span class="stat-label">Admins</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-user">
+          <div class="stat-icon-wrapper">
+            <i class="bx bx-user"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats()!.userCount }}</span>
+            <span class="stat-label">Regular Users</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-new">
+          <div class="stat-icon-wrapper">
+            <i class="bx bx-trending-up"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats()!.newUsersLast7Days }}</span>
+            <span class="stat-label">New (7 days)</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Users Table -->
+    <div class="table-section">
+      <div class="table-header">
+        <h2><i class="bx bx-table"></i> User Management</h2>
+        <span class="user-count-badge">{{ users().length }} users</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading users...</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Provider</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr [class.deleting]="actionLoading() === user.id">
+                  <td>
+                    <div class="user-cell">
+                      @if (user.avatarUrl) {
+                        <img [src]="user.avatarUrl" [alt]="user.name" class="user-avatar" />
+                      } @else {
+                        <div class="user-avatar-placeholder">{{ getInitials(user.name) }}</div>
+                      }
+                      <div class="user-meta">
+                        <span class="user-name">{{ user.name || user.username }}</span>
+                        <span class="user-username">&#64;{{ user.username }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="email-text">{{ user.email || '—' }}</span>
+                  </td>
+                  <td>
+                    <span class="provider-badge" [attr.data-provider]="user.provider ? user.provider.toLowerCase() : 'local'">
+                      <i [class]="getProviderIcon(user.provider)"></i>
+                      {{ user.provider || 'LOCAL' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="role-badge" [class.role-admin]="user.accountType === 'ROLE_ADMIN'" [class.role-user]="user.accountType === 'ROLE_USER'">
+                      @if (user.accountType === 'ROLE_ADMIN') {
+                        <i class="bx bx-shield"></i> Admin
+                      } @else {
+                        <i class="bx bx-user"></i> User
+                      }
+                    </span>
+                  </td>
+                  <td>
+                    <span class="date-text">{{ user.createdAt | date: 'MMM d, y' }}</span>
+                  </td>
+                  <td>
+                    <span class="date-text">{{ user.lastLoginAt | date: 'MMM d, y' }}</span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        class="btn-action btn-role"
+                        (click)="toggleRole(user)"
+                        [disabled]="actionLoading() === user.id"
+                        [title]="user.accountType === 'ROLE_ADMIN' ? 'Demote to User' : 'Promote to Admin'">
+                        @if (actionLoading() === user.id) {
+                          <i class="bx bx-loader-alt spin"></i>
+                        } @else if (user.accountType === 'ROLE_ADMIN') {
+                          <i class="bx bx-down-arrow-alt"></i>
+                        } @else {
+                          <i class="bx bx-up-arrow-alt"></i>
+                        }
+                      </button>
+
+                      @if (deleteConfirmId() === user.id) {
+                        <div class="delete-confirm">
+                          <span>Delete?</span>
+                          <button class="btn-confirm-yes" (click)="deleteUser(user.id)">
+                            <i class="bx bx-check"></i>
+                          </button>
+                          <button class="btn-confirm-no" (click)="cancelDelete()">
+                            <i class="bx bx-x"></i>
+                          </button>
+                        </div>
+                      } @else {
+                        <button
+                          class="btn-action btn-delete"
+                          (click)="confirmDelete(user.id)"
+                          [disabled]="actionLoading() === user.id"
+                          title="Delete user">
+                          <i class="bx bx-trash"></i>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </main>
+</div>

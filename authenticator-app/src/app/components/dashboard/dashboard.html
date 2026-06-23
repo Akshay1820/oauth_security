@@ -64,6 +64,11 @@
 
     <!-- Quick Action / Sign Out -->
     <div class="action-footer">
+      @if (isAdmin()) {
+        <button class="btn btn-admin" (click)="router.navigate(['/admin'])">
+          <i class="bx bx-shield-quarter"></i> Admin Panel
+        </button>
+      }
       <button class="btn btn-logout" (click)="logout()">
         <i class="bx bx-log-out-circle"></i> Sign Out
       </button>

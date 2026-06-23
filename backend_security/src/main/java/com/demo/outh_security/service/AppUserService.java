@@ -1,6 +1,7 @@
 package com.demo.outh_security.service;
 
 import com.demo.outh_security.dto.AppUserDto;
+import com.demo.outh_security.dto.DashboardStatsDto;
 import com.demo.outh_security.model.AppUser;
 import com.demo.outh_security.model.Provider;
 import com.demo.outh_security.model.ACCOUNT_TYPE;
@@ -29,6 +30,40 @@ public class AppUserService {
 
     public List<AppUser> getAllUsers(){
         return appUserRepository.findAll();
+    }
+
+    public AppUser getUserById(Long id) {
+        return appUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+    public AppUser changeUserRole(Long id, ACCOUNT_TYPE newRole) {
+        AppUser user = getUserById(id);
+        user.setAccountType(newRole);
+        return appUserRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        if (!appUserRepository.existsById(id)) {
+            throw new RuntimeException("User not found with id: " + id);
+        }
+        appUserRepository.deleteById(id);
+    }
+
+    public DashboardStatsDto getDashboardStats() {
+        long totalUsers = appUserRepository.count();
+        long adminCount = appUserRepository.countByAccountType(ACCOUNT_TYPE.ROLE_ADMIN);
+        long userCount = appUserRepository.countByAccountType(ACCOUNT_TYPE.ROLE_USER);
+        long newUsersLast7Days = appUserRepository.countByCreatedAtAfter(
+                LocalDateTime.now().minusDays(7)
+        );
+
+        return DashboardStatsDto.builder()
+                .totalUsers(totalUsers)
+                .adminCount(adminCount)
+                .userCount(userCount)
+                .newUsersLast7Days(newUsersLast7Days)
+                .build();
     }
 
     private AppUser createNewAppUser(AppUserDto dto) {
@@ -70,3 +105,4 @@ public class AppUserService {
                 .or(() -> appUserRepository.findByUsername(dto.getUserName()));
     }
 }
+

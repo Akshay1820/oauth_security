@@ -16,15 +16,15 @@ export class Dashboard implements OnInit {
 
   constructor(
     private integration: Integration,
-    private router: Router
-  ) {}
+    public router: Router
+  ) { }
 
   ngOnInit(): void {
     const storedUsername = this.integration.getUsername();
     if (storedUsername) {
       this.username.set(storedUsername);
     }
-    
+
     const storedToken = this.integration.getToken();
     if (storedToken) {
       this.token.set(storedToken);
@@ -37,7 +37,7 @@ export class Dashboard implements OnInit {
 
   copyToken(): void {
     if (!this.token()) return;
-    
+
     navigator.clipboard.writeText(this.token()).then(() => {
       this.copySuccess.set(true);
       setTimeout(() => {
@@ -49,5 +49,9 @@ export class Dashboard implements OnInit {
   logout(): void {
     this.integration.logout();
     this.router.navigate(['/login']);
+  }
+
+  isAdmin(): boolean {
+    return this.integration.isAdmin();
   }
 }

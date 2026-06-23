@@ -25,6 +25,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 // Clear local storage and redirect to login page
                 integration.logout();
                 router.navigate(['/login']);
+            } else if (error.status === 403) {
+                // Unauthorized access to forbidden resource
+                router.navigate(['/dashboard']);
             }
             return throwError(() => error);
         })
